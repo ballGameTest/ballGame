@@ -1,0 +1,176 @@
+{
+    "frames": {
+        "button.png": {
+            "frame": {
+                "h": 174,
+                "idx": 0,
+                "w": 77,
+                "x": 379,
+                "y": 61
+            },
+            "rotated": false,
+            "sourceSize": {
+                "h": 174,
+                "w": 79
+            },
+            "spriteSourceSize": {
+                "h": 174,
+                "w": 77,
+                "x": 2,
+                "y": 0
+            },
+            "trimmed": true
+        },
+        "clip_head.png": {
+            "frame": {
+                "h": 60,
+                "idx": 0,
+                "w": 465,
+                "x": 0,
+                "y": 0
+            },
+            "rotated": false,
+            "sourceSize": {
+                "h": 60,
+                "w": 480
+            },
+            "spriteSourceSize": {
+                "h": 60,
+                "w": 465,
+                "x": 10,
+                "y": 0
+            },
+            "trimmed": true
+        },
+        "clip_num.png": {
+            "frame": {
+                "h": 50,
+                "idx": 0,
+                "w": 378,
+                "x": 0,
+                "y": 61
+            },
+            "rotated": false,
+            "sourceSize": {
+                "h": 51,
+                "w": 380
+            },
+            "spriteSourceSize": {
+                "h": 50,
+                "w": 378,
+                "x": 1,
+                "y": 1
+            },
+            "trimmed": true
+        },
+        "img_bg2.png": {
+            "frame": {
+                "h": 77,
+                "idx": 0,
+                "w": 76,
+                "x": 81,
+                "y": 112
+            },
+            "rotated": false,
+            "sourceSize": {
+                "h": 77,
+                "w": 76
+            },
+            "spriteSourceSize": {
+                "h": 77,
+                "w": 76,
+                "x": 0,
+                "y": 0
+            },
+            "trimmed": false
+        },
+        "img_blank.png": {
+            "frame": {
+                "h": 20,
+                "idx": 0,
+                "w": 20,
+                "x": 457,
+                "y": 61
+            },
+            "rotated": false,
+            "sourceSize": {
+                "h": 20,
+                "w": 20
+            },
+            "spriteSourceSize": {
+                "h": 20,
+                "w": 20,
+                "x": 0,
+                "y": 0
+            },
+            "trimmed": false
+        },
+        "img_headBg.png": {
+            "frame": {
+                "h": 80,
+                "idx": 0,
+                "w": 80,
+                "x": 0,
+                "y": 112
+            },
+            "rotated": false,
+            "sourceSize": {
+                "h": 80,
+                "w": 80
+            },
+            "spriteSourceSize": {
+                "h": 80,
+                "w": 80,
+                "x": 0,
+                "y": 0
+            },
+            "trimmed": false
+        },
+        "progress$bar.png": {
+            "frame": {
+                "h": 14,
+                "idx": 0,
+                "w": 50,
+                "x": 0,
+                "y": 236
+            },
+            "rotated": false,
+            "sourceSize": {
+                "h": 14,
+                "w": 50
+            },
+            "spriteSourceSize": {
+                "h": 14,
+                "w": 50,
+                "x": 0,
+                "y": 0
+            },
+            "trimmed": false
+        },
+        "progress.png": {
+            "frame": {
+                "h": 14,
+                "idx": 0,
+                "w": 50,
+                "x": 51,
+                "y": 236
+            },
+            "rotated": false,
+            "sourceSize": {
+                "h": 14,
+                "w": 50
+            },
+            "spriteSourceSize": {
+                "h": 14,
+                "w": 50,
+                "x": 0,
+                "y": 0
+            },
+            "trimmed": false
+        }
+    },
+    "meta": {
+        "image": "ui.png",
+        "prefix": "ui/"
+    }
+}

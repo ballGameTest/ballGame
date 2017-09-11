@@ -1,0 +1,2 @@
+node ../LayaAirExcelTool.max.js excel1.xlsx checkType=true clientPackageName=db clientCodeFolder=out1/client/src clientConfigFolder=out1/client/ serverConfigFolder=out1/server/ serverCodeFolder=out1/server/src
+pause

@@ -1,0 +1,1 @@
+{"keys":["id","type","class","userId","sourceId","weight","radius","speed"],"types":["i","s","s","i","i","i","n","n"],"datas":[[1,"role","GameRole",0,1,0,0,5],[2,"star","GameStar",0,1,0,0,0],[3,"thorn","GameThorn",0,1,0,0,0],[4,"prop","GameProp",0,1,0,0,10]],"name":"gameElement"}

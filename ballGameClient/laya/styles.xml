@@ -1,0 +1,5 @@
+<res>
+   <item name="ui/clip_head.png" type="Clip" compress="0" pack="1" quality="80" props="" picType="0"/>
+   <item name="map/2.jpg" type="Image" compress="0" pack="0" quality="80" props="" picType="1"/>
+   <item name="map/1.jpg" type="Image" compress="0" pack="0" quality="80" props="" picType="1"/>
+</res>

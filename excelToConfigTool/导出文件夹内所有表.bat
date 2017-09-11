@@ -1,0 +1,2 @@
+node tool/LayaAirExcelTool.max.js excels checkType=true clientPackageName= clientCodeFolder=D:/ballGameProject/ballGameClient/bin/h5/config/src clientConfigFolder=D:/ballGameProject/ballGameClient/bin/h5/config/ serverConfigFolder=D:/ballGameProject/ballGameServer/bin/h5/config/ serverCodeFolder=D:/ballGameProject/ballGameServer/bin/h5/config/src
+pause

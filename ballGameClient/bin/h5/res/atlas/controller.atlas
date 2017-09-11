@@ -1,0 +1,71 @@
+{
+    "frames": {
+        "btn_attack.png": {
+            "frame": {
+                "h": 373,
+                "idx": 0,
+                "w": 184,
+                "x": 0,
+                "y": 0
+            },
+            "rotated": false,
+            "sourceSize": {
+                "h": 380,
+                "w": 185
+            },
+            "spriteSourceSize": {
+                "h": 373,
+                "w": 184,
+                "x": 1,
+                "y": 3
+            },
+            "trimmed": true
+        },
+        "control_base.png": {
+            "frame": {
+                "h": 194,
+                "idx": 0,
+                "w": 194,
+                "x": 185,
+                "y": 0
+            },
+            "rotated": false,
+            "sourceSize": {
+                "h": 200,
+                "w": 200
+            },
+            "spriteSourceSize": {
+                "h": 194,
+                "w": 194,
+                "x": 3,
+                "y": 3
+            },
+            "trimmed": true
+        },
+        "control_knob.png": {
+            "frame": {
+                "h": 95,
+                "idx": 0,
+                "w": 95,
+                "x": 185,
+                "y": 195
+            },
+            "rotated": false,
+            "sourceSize": {
+                "h": 95,
+                "w": 95
+            },
+            "spriteSourceSize": {
+                "h": 95,
+                "w": 95,
+                "x": 0,
+                "y": 0
+            },
+            "trimmed": false
+        }
+    },
+    "meta": {
+        "image": "controller.png",
+        "prefix": "controller/"
+    }
+}

@@ -1,0 +1,18 @@
+{
+	"role":[
+		"element/role01.png",
+		"element/role02.png",
+		"element/role03.png",
+		"element/role04.png"
+	],
+	"star":[
+		"element/star01.png",
+		"element/star02.png",
+		"element/star03.png",
+		"element/star04.png",
+		"element/star05.png",
+		"element/star06.png",
+		"element/star07.png"
+	],
+	"thorn":[]
+}

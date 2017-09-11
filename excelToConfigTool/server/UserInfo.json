@@ -1,0 +1,1 @@
+{"keys":["id","username","isVip","gold","speed"],"types":["int","string","boolean","number","int"],"datas":[["1000","经济建设",false,10000,null],["900","hihi"]],"name":"UserInfo"}
