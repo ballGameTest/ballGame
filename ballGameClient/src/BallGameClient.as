@@ -57,7 +57,7 @@
 			Stat.show();
 			//加载启动页资源
 			Laya.loader.load("res/atlas/ui.atlas",Handler.create(this,onLoginView));
-			Laya.loader.load(["res/atlas/element.atlas","res/atlas/role.atlas","res/atlas/controller.atlas"]);
+			Laya.loader.load(["res/atlas/element.atlas","res/atlas/controller.atlas"]);
 			//初始化页面容器
 			ViewContainer.I();
 			//注册所有消息
@@ -84,7 +84,7 @@
 			
 			//初始化socket，连接服务器
 			gameSocket=new GameSocket();
-			gameSocket.connect("10.10.20.56",8999);
+			gameSocket.connect("10.10.82.67",8999);
 			
 			//获取游戏配置文件
 			gameSource=Laya.loader.getRes("config/gameSource.json"); 

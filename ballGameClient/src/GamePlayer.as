@@ -87,7 +87,7 @@ package
 			role.on(GameEvent.EAT_ITEM,this,weightChange);
 			role.clientId=role.id=id;
 			this.roles[id]=role;
-			role.type="role";
+			role.type=2;
 			role.setSource(sourceId,initRadius);
 			
 			role.x=this.x;

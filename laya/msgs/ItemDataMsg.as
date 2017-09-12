@@ -12,13 +12,13 @@ package msgs
 		public var type :int=0;
 		public var sourceId :int=0;
 		public var weight :Number=0;
-		public var radius :Number=-1;
+		public var radius :Number=0;
 		public var speed :Number=0;	
 		public var x:int=0;
 		public var y:int=0;
-		public var flyTime:int=1000;
+		public var angle:int=0;
 		
-		public function ItemDataMsg(item:*)
+		public function ItemDataMsg(item:*=null)
 		{
 			if(item)
 			{
@@ -30,7 +30,6 @@ package msgs
 				speed=item.speed;
 				x=item.x;
 				y=item.y;
-				flyTime=item.flyTime;
 			}
 		}
 		
@@ -43,7 +42,7 @@ package msgs
 			["speed", MessageBase.UINT8],
 			["x", MessageBase.UINT16],
 			["y", MessageBase.UINT16],
-			["flyTime", MessageBase.UINT16]
+			["angle", MessageBase.INT16],
 		];
 	}
 }

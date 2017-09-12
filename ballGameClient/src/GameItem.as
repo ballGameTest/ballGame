@@ -14,7 +14,7 @@ package
 	{
 		public var clientId:int=-1;
 		public var id :Number=0;
-		public var type :String="";
+		public var type :int=0;
 		public var sourceId :int=0;
 		public var weight :Number=100;
 		public var radius :Number=-1;
@@ -49,6 +49,7 @@ package
 			weight=itemMsg.weight;
 			radius=itemMsg.radius;
 			speed=itemMsg.speed;
+			angle=itemMsg.angle;
 			
 			this.x=itemMsg.x;
 			this.y=itemMsg.y;
@@ -67,7 +68,14 @@ package
 			this.initRadius=this.radius=radius;
 			this.sourceId=sourceId;
 			img=new Image()
-			img.loadImage("element/"+type+sourceId+".png",-radius,-radius,radius*2,radius*2);
+				
+			var itemName:String;
+			if(type==0)  itemName="star";
+			else if(type==1) itemName="thorn";
+			else if(type==2) itemName="role";
+			else if(type==3) itemName="prop";
+			
+			img.loadImage("element/"+itemName+sourceId+".png",-radius,-radius,radius*2,radius*2);
 			this.size(radius*2,radius*2);
 			this.addChild(img);
 		}

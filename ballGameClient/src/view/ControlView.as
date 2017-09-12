@@ -12,17 +12,14 @@ package view
 	 */	
 	public class ControlView extends ControlUI
 	{
-		private var clientLostMsg:ClientLostMsg=new ClientLostMsg();
 		
-		private var lostDelay:int=1000;
+		private var lostDelay:int=500;
 		
 		/**
 		 * 角色行为控制UI
 		 */	
 		public function ControlView()
 		{
-			this.clientLostMsg.clientId=Game.player.clientId;
-			
 			this.ctr_lostProp.on(Event.MOUSE_DOWN,this,onLostProp);
 			this.ctr_lostProp.on(Event.MOUSE_UP,this,onLostUp);
 			
@@ -38,8 +35,7 @@ package view
 		
 		private function onLostProp():void
 		{ 
-			this.clientLostMsg.lostAngle=Game.player.angle;
-			Game.send(clientLostMsg);
+			this.event(GameEvent.PLAYER_LOST);
 			trace("点击了丢道具-----");
 			
 			Laya.timer.loop(lostDelay,this,onDelayLost);
@@ -48,12 +44,11 @@ package view
 		private function onDelayLost():void
 		{
 			trace("长按丢道具-----");
-			this.clientLostMsg.lostAngle=Game.player.angle;
-			Game.send(clientLostMsg);
+			this.event(GameEvent.PLAYER_LOST);
 		}
 		private function onLostUp():void
 		{
-			Laya.timer.clear(lostDelay,this,onDelayLost);
+			Laya.timer.clear(this,onDelayLost);
 		}
 	}
 }

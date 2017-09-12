@@ -21,6 +21,8 @@ package
 		public static var PLAYER_WEIGHT:String="player_weight";
 		/***玩家复活事件***/
 		public static var PLAYER_REVIVE:String="player_revive";
+		/***玩家丢道具事件***/
+		public static var PLAYER_LOST:String="player_lost";
 
 		
 		public function GameEvent()

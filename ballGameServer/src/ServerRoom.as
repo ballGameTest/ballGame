@@ -1,6 +1,5 @@
 package
 {
-	import game.ServerProp;
 	import game.manager.DataManager;
 	import game.net.MessageBase;
 	
@@ -51,10 +50,10 @@ package
 		private var thornCount:int=10;
 		private var items:Object={};
 		
-		private const STAR:String=0;
-		private const THORN:String=1;
-		private const ROLE:String=2;
-		private const PROP:String=3;
+		private const STAR:int=0;
+		private const THORN:int=1;
+		private const ROLE:int=2;
+		private const PROP:int=3;
 		
 		private var itemId:int=0;
 		
@@ -94,11 +93,15 @@ package
 			this.broadcastToRoom(msg);
 		}
 		
-		/***转发玩家吐球消息***/
+		/***转发玩家吐道具消息***/
 		private function onClientLost(msg:ClientLostMsg):void
 		{
-			var serverProp:ServerItem=Pool.getItemByClass("serverProp",ServerItem);
-			
+			var len:int=msg.itemDataArray.length;
+			for(var i:int=0;i<len;i++)
+			{
+				//更新道具的id
+				msg.itemDataArray[i].id=this.itemId++;
+			}
 			this.broadcastToRoom(msg);
 		}
 		
@@ -118,7 +121,7 @@ package
 					delete items[msg.eatId];
 				}
 				
-				Pool.recover("serverItem",items[msg.eatId]);
+//				Pool.recover("serverItem",items[msg.eatId]);
 			}
 			//排除吃角色的玩家
 			this.broadcastToRoom(msg,clients[msg.roleClientId]);
@@ -220,7 +223,7 @@ package
 		 * @param type   类型
 		 * @param count  数量
 		 */		
-		private function createItems(type:String,count:int):void
+		private function createItems(type:int,count:int):void
 		{
 			var msgArray:Array=[];
 			for(var i:int=0;i<count;i++)

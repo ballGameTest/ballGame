@@ -16,6 +16,7 @@ package
 	import msgs.GameCreateMsg;
 	import msgs.GameOverMsg;
 	import msgs.GameStartMsg;
+	import msgs.ItemDataMsg;
 	
 	import view.ControlView;
 	import view.GameView;
@@ -53,10 +54,10 @@ package
 		
 		private var gameTime:int=0;
 		
-		private const STAR:String=0;
-		private const THORN:String=1;
-		private const ROLE:String=2;
-		private const PROP:String=3;
+		private const STAR:int=0;
+		private const THORN:int=1;
+		private const ROLE:int=2;
+		private const PROP:int=3;
 		
 		
 		/***物品被吃消息***/
@@ -65,6 +66,8 @@ package
 		private var clientAngleMsg:ClientAngleMsg=new ClientAngleMsg();
 		/***玩家复活消息***/
 		private var clientReviveMsg:ClientReviveMsg=new ClientReviveMsg();
+		/***玩家丢道具消息***/
+		private var clientLostMsg:ClientLostMsg=new ClientLostMsg();
 		
 		/**
 		 * 游戏主逻辑 
@@ -89,6 +92,7 @@ package
 			gameView.addChild(rocker);
 			
 			this.control=new ControlView();
+			this.control.on(GameEvent.PLAYER_LOST,this,onPlayerLost);
 			this.addChild(control);
 			control.pos(Laya.stage.width-control.width,Laya.stage.height-control.height);
 			
@@ -153,10 +157,36 @@ package
 			players[msg.clientId].setAngle(msg);
 		}
 
-		
+		/**
+		 * 初始化玩家丢道具消息并发送
+		 */		
+		private function onPlayerLost():void
+		{
+			this.clientLostMsg.clientId=player.clientId;
+			var itemArr:Array=[];
+			for(var p:String in player.roles)
+			{
+				var itemDataMsg:ItemDataMsg=new ItemDataMsg();
+				itemDataMsg.angle=player.roles[p].angle;
+				itemDataMsg.x=player.roles[p].x;
+				itemDataMsg.y=player.roles[p].y;
+				itemDataMsg.sourceId=player.sourceId;
+				itemArr.push(itemDataMsg);
+			}
+			this.clientLostMsg.itemDataArray=itemArr;
+			send(this.clientLostMsg);
+		}
+		/**
+		 * 收到玩家丢道具消息
+		 * @param msg 玩家丢道具消息
+		 */		
 		private function onClientLost(msg:ClientLostMsg):void
 		{
-			trace(11111,msg.clientId,msg.lostAngle,msg.propId);
+			trace(msg.clientId,msg.itemDataArray);
+//			var prop:GameProp=players[msg.clientId].createProp(msg.itemDataArray);
+//			
+//			scene.starLayer.addChild(prop);
+//			scene.items[prop.id]=prop;
 		}
 		
 		
@@ -313,12 +343,13 @@ package
 		private function onItemEaten(msg:EatItemMsg):void
 		{
 			trace(msg);
-			//玩家自己的角色被吃
+			//玩家角色被吃
 			if(msg.eatClientId!=-1)
 			{
-				trace("“"+player.nickname+"”角色被“"+players[scene.roles[msg.roleId].clientId].nickname+"”玩家角色吃了!");
+				trace("“"+players[msg.eatClientId].nickname+"”角色被“"+players[msg.roleClientId].nickname+"”玩家角色吃了!");
 				scene.roles[msg.roleId].addWeight(msg.eatWeight);
-				player.roleByEat(msg.eatId);
+				
+				if(msg.eatClientId==player.clientId) player.roleByEat(msg.eatId);
 				
 				//如果玩家没有角色了，显示复活界面
 				if(player.rolesCount==0)
@@ -334,7 +365,7 @@ package
 				
 			}else//星星被吃
 			{
-				trace("星星"+msg.eatId+"被"+players[scene.roles[msg.roleId].clientId].nickname+"玩家角色吃了!");
+				trace("星星"+msg.eatId+"被"+players[msg.roleClientId].nickname+"玩家角色吃了!");
 				var role:GameItem=scene.roles[msg.roleId] as GameItem;
 				role.addWeight(msg.eatWeight);
 				var star:GameItem=scene.items[msg.eatId] as GameItem;

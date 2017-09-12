@@ -10,7 +10,6 @@ package view
 		private var gameAssets:Array=[
 			"res/atlas/comp.atlas",
 			"res/atlas/controller.atlas",
-			"res/atlas/role.atlas",
 			"res/atlas/map.atlas",
 			"config/gameSource.json"
 		];
