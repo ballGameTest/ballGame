@@ -30,6 +30,7 @@ package msgs
 				speed=item.speed;
 				x=item.x;
 				y=item.y;
+				angle=item.angle;
 			}
 		}
 		

@@ -96,11 +96,11 @@ package
 		/***转发玩家吐道具消息***/
 		private function onClientLost(msg:ClientLostMsg):void
 		{
-			var len:int=msg.itemDataArray.length;
+			var len:int=msg.propDataArray.length;
 			for(var i:int=0;i<len;i++)
 			{
 				//更新道具的id
-				msg.itemDataArray[i].id=this.itemId++;
+				msg.propDataArray[i].id=this.itemId++;
 			}
 			this.broadcastToRoom(msg);
 		}
@@ -110,15 +110,15 @@ package
 		{
 			if(msg.eatClientId==-1)
 			{
-				if(items[msg.eatId].type===this.STAR) 
+				if(msg.eatType===this.STAR) 
 				{
 					starCount--;
-					delete items[msg.eatId];
+//					delete items[msg.eatId];
 				}
-				else if(items[msg.eatId].type===this.THORN) 
+				else if(msg.eatType===this.THORN) 
 				{
 					thornCount--;
-					delete items[msg.eatId];
+//					delete items[msg.eatId];
 				}
 				
 //				Pool.recover("serverItem",items[msg.eatId]);
@@ -228,27 +228,27 @@ package
 			var msgArray:Array=[];
 			for(var i:int=0;i<count;i++)
 			{
-				var item:ServerItem=Pool.getItemByClass("serverItem",ServerItem);
+				var itemDataMsg:ItemDataMsg=new ItemDataMsg();
+//				var item:ServerItem=Pool.getItemByClass("serverItem",ServerItem);
 				if(type===this.THORN)
 				{
-					item.type=this.THORN;
-					item.weight=Math.ceil(Math.random()*1000+300);
-					item.radius=128;
+					itemDataMsg.type=this.THORN;
+					itemDataMsg.weight=Math.ceil(Math.random()*1000+300);
+					itemDataMsg.radius=128;
 				}else
 				{
-					item.type=this.STAR;
-					item.weight=Math.ceil(Math.random()*50+20);
-					item.radius=16;
+					itemDataMsg.type=this.STAR;
+					itemDataMsg.weight=Math.ceil(Math.random()*50+20);
+					itemDataMsg.radius=16;
 				}
-				item.id=itemId;
-				item.sourceId=Math.ceil(Math.random()*6);
-				item.x=Math.ceil(Math.random()*2520+20);
-				item.y=Math.ceil(Math.random()*2520+20);
+				itemDataMsg.id=itemId;
+				itemDataMsg.sourceId=Math.ceil(Math.random()*6);
+				itemDataMsg.x=Math.ceil(Math.random()*2520+20);
+				itemDataMsg.y=Math.ceil(Math.random()*2520+20);
 				
-				items[itemId]=item;				
+//				items[itemId]=item;				
 				itemId++;
-				
-				var itemDataMsg:ItemDataMsg=new ItemDataMsg(item);
+
 				msgArray.push(itemDataMsg);
 			}
 			

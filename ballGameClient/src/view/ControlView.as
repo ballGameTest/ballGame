@@ -36,14 +36,14 @@ package view
 		private function onLostProp():void
 		{ 
 			this.event(GameEvent.PLAYER_LOST);
-			trace("点击了丢道具-----");
+//			trace("点击了丢道具-----");
 			
 			Laya.timer.loop(lostDelay,this,onDelayLost);
 		}
 		
 		private function onDelayLost():void
 		{
-			trace("长按丢道具-----");
+//			trace("长按丢道具-----");
 			this.event(GameEvent.PLAYER_LOST);
 		}
 		private function onLostUp():void

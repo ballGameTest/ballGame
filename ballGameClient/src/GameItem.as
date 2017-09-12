@@ -27,7 +27,13 @@ package
 		public var speedY:Number=0;
 		public var angle:int=0;
 		
-		private var img:Image;
+		protected var img:Image;
+		
+		
+		public const STAR:int=0;
+		public const THORN:int=1;
+		public const ROLE:int=2;
+		public const PROP:int=3;
 		
 		/**
 		 * 游戏物品，可以是角色、星星、刺球等类型
@@ -70,14 +76,15 @@ package
 			img=new Image()
 				
 			var itemName:String;
-			if(type==0)  itemName="star";
-			else if(type==1) itemName="thorn";
-			else if(type==2) itemName="role";
-			else if(type==3) itemName="prop";
+			if(type==STAR)  itemName="star";
+			else if(type==THORN) itemName="thorn";
+			else if(type==ROLE) itemName="role";
+			else if(type==PROP) itemName="role";
 			
 			img.loadImage("element/"+itemName+sourceId+".png",-radius,-radius,radius*2,radius*2);
-			this.size(radius*2,radius*2);
 			this.addChild(img);
+//			img.x=img.y=-radius;
+			this.size(radius*2,radius*2);
 		}
 
 		/**
@@ -91,31 +98,6 @@ package
 			this.offAll();
 			this.speed=this.speedX=this.speedY=0;
 			Pool.recover("gameItem",this);
-		}
-		
-		
-		/**
-		 * 游戏物品增加重量，扩大半径
-		 * @param addWeight 增加的重量
-		 */		
-		public function addWeight(addWeight:int):void
-		{
-			this.event(GameEvent.EAT_ITEM);
-			this.weight+=addWeight;
-			
-			if(this.weight<5000)
-			{
-				this.scaleNum+=addWeight/3000
-				
-			}else if(this.weight>5000&&this.weight<1000000)
-			{
-				this.scaleNum+=addWeight/10000
-			}
-			this.radius=initRadius*scaleNum;
-			this.size(radius*2,radius*2);
-			
-			this.scaleX=scaleNum;
-			this.scaleY=scaleNum;
 		}
 	}
 }

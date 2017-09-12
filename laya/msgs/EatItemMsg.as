@@ -14,6 +14,7 @@ package msgs
 		public var eatId:int;
 		public var eatClientId:int=-1;
 		public var eatWeight:int;
+		public var eatType:int=0;
 		
 		public function EatItemMsg()
 		{
@@ -23,7 +24,8 @@ package msgs
 			["roleClientId", MessageBase.INT16],
 			["eatId", MessageBase.UINT16],
 			["eatClientId", MessageBase.INT16],
-			["eatWeight", MessageBase.UINT16]
+			["eatWeight", MessageBase.UINT16],
+			["eatType", MessageBase.UINT8]
 		];
 	}
 }

@@ -268,6 +268,10 @@ var Laya=window.Laya=(function(window,document){
 	})()
 
 
+	/**
+	*游戏房间管理器
+	*@author CHENZHENG
+	*/
 	//class RoomManager
 	var RoomManager=(function(){
 		function RoomManager(){
@@ -400,6 +404,10 @@ var Laya=window.Laya=(function(window,document){
 	})()
 
 
+	/**
+	*游戏房间，游戏消息转发、时间同步等
+	*@author CHENZHENG
+	*/
 	//class ServerRoom
 	var ServerRoom=(function(){
 		function ServerRoom(){
@@ -442,9 +450,9 @@ var Laya=window.Laya=(function(window,document){
 
 		/***转发玩家吐道具消息***/
 		__proto.onClientLost=function(msg){
-			var len=msg.itemDataArray.length;
+			var len=msg.propDataArray.length;
 			for(var i=0;i<len;i++){
-				msg.itemDataArray[i].id=this.itemId++;
+				msg.propDataArray[i].id=this.itemId++;
 			}
 			this.broadcastToRoom(msg);
 		}
@@ -452,13 +460,11 @@ var Laya=window.Laya=(function(window,document){
 		/***道具被吃消息处理***/
 		__proto.onItemEaten=function(msg){
 			if(msg.eatClientId==-1){
-				if(this.items[msg.eatId].type===this.STAR){
+				if(msg.eatType===this.STAR){
 					this.starCount--;
-					delete this.items[msg.eatId];
 				}
-				else if(this.items[msg.eatId].type===this.THORN){
+				else if(msg.eatType===this.THORN){
 					this.thornCount--;
-					delete this.items[msg.eatId];
 				}
 			}
 			this.broadcastToRoom(msg,this.clients[msg.roleClientId]);
@@ -536,23 +542,21 @@ var Laya=window.Laya=(function(window,document){
 		__proto.createItems=function(type,count){
 			var msgArray=[];
 			for(var i=0;i<count;i++){
-				var item=Pool.getItemByClass("serverItem",ServerItem);
+				var itemDataMsg=new ItemDataMsg();
 				if(type===this.THORN){
-					item.type=this.THORN;
-					item.weight=Math.ceil(Math.random()*1000+300);
-					item.radius=128;
+					itemDataMsg.type=this.THORN;
+					itemDataMsg.weight=Math.ceil(Math.random()*1000+300);
+					itemDataMsg.radius=128;
 					}else{
-					item.type=this.STAR;
-					item.weight=Math.ceil(Math.random()*50+20);
-					item.radius=16;
+					itemDataMsg.type=this.STAR;
+					itemDataMsg.weight=Math.ceil(Math.random()*50+20);
+					itemDataMsg.radius=16;
 				}
-				item.id=this.itemId;
-				item.sourceId=Math.ceil(Math.random()*6);
-				item.x=Math.ceil(Math.random()*2520+20);
-				item.y=Math.ceil(Math.random()*2520+20);
-				this.items[this.itemId]=item;
+				itemDataMsg.id=this.itemId;
+				itemDataMsg.sourceId=Math.ceil(Math.random()*6);
+				itemDataMsg.x=Math.ceil(Math.random()*2520+20);
+				itemDataMsg.y=Math.ceil(Math.random()*2520+20);
 				this.itemId++;
-				var itemDataMsg=new ItemDataMsg(item);
 				msgArray.push(itemDataMsg);
 			}
 			this.gameCreateMsg=new GameCreateMsg();
@@ -615,6 +619,10 @@ var Laya=window.Laya=(function(window,document){
 	})()
 
 
+	/**
+	*可调度事件的所有类的基类
+	*<code>EventDispatcher</code> 类是可调度事件的所有类的基类。
+	*/
 	//class laya.events.EventDispatcher
 	var EventDispatcher=(function(){
 		var EventHandler;
@@ -800,6 +808,105 @@ var Laya=window.Laya=(function(window,document){
 	})()
 
 
+	/**
+	*<p><code>Handler</code> 是事件处理器类。</p>
+	*<p>推荐使用 Handler.create()方法从对象池创建，减少对象创建消耗。创建的 Handler 对象不再使用后，可以使用 Handler.recover()将其回收到对象池，回收后不要再使用此对象，否则会导致不可预料的错误。</p>
+	*<p><b>注意：</b>由于鼠标事件也用本对象池，不正确的回收及调用，可能会影响鼠标事件的执行。</p>
+	*/
+	//class laya.utils.Handler
+	var Handler=(function(){
+		function Handler(caller,method,args,once){
+			//this.caller=null;
+			//this.method=null;
+			//this.args=null;
+			this.once=false;
+			this._id=0;
+			(once===void 0)&& (once=false);
+			this.setTo(caller,method,args,once);
+		}
+
+		__class(Handler,'laya.utils.Handler');
+		var __proto=Handler.prototype;
+		/**
+		*设置此对象的指定属性值。
+		*@param caller 执行域(this)。
+		*@param method 回调方法。
+		*@param args 携带的参数。
+		*@param once 是否只执行一次，如果为true，执行后执行recover()进行回收。
+		*@return 返回 handler 本身。
+		*/
+		__proto.setTo=function(caller,method,args,once){
+			this._id=Handler._gid++;
+			this.caller=caller;
+			this.method=method;
+			this.args=args;
+			this.once=once;
+			return this;
+		}
+
+		/**
+		*执行处理器。
+		*/
+		__proto.run=function(){
+			if (this.method==null)return null;
+			var id=this._id;
+			var result=this.method.apply(this.caller,this.args);
+			this._id===id && this.once && this.recover();
+			return result;
+		}
+
+		/**
+		*执行处理器，携带额外数据。
+		*@param data 附加的回调数据，可以是单数据或者Array(作为多参)。
+		*/
+		__proto.runWith=function(data){
+			if (this.method==null)return null;
+			var id=this._id;
+			if (data==null)
+				var result=this.method.apply(this.caller,this.args);
+			else if (!this.args && !data.unshift)result=this.method.call(this.caller,data);
+			else if (this.args)result=this.method.apply(this.caller,this.args.concat(data));
+			else result=this.method.apply(this.caller,data);
+			this._id===id && this.once && this.recover();
+			return result;
+		}
+
+		/**
+		*清理对象引用。
+		*/
+		__proto.clear=function(){
+			this.caller=null;
+			this.method=null;
+			this.args=null;
+			return this;
+		}
+
+		/**
+		*清理并回收到 Handler 对象池内。
+		*/
+		__proto.recover=function(){
+			if (this._id > 0){
+				this._id=0;
+				Handler._pool.push(this.clear());
+			}
+		}
+
+		Handler.create=function(caller,method,args,once){
+			(once===void 0)&& (once=true);
+			if (Handler._pool.length)return Handler._pool.pop().setTo(caller,method,args,once);
+			return new Handler(caller,method,args,once);
+		}
+
+		Handler._pool=[];
+		Handler._gid=1;
+		return Handler;
+	})()
+
+
+	/**
+	*<p> <code>Matrix</code> 类表示一个转换矩阵，它确定如何将点从一个坐标空间映射到另一个坐标空间。</p>
+	*<p>您可以对一个显示对象执行不同的图形转换，方法是设置 Matrix 对象的属性，将该 Matrix 对象应用于 Transform 对象的 matrix 属性，然后应用该 Transform 对象作为显示对象的 transform 属性。这些转换函数包括平移（x 和 y 重新定位）、旋转、缩放和倾斜。</p>
+	*/
 	//class laya.maths.Matrix
 	var Matrix=(function(){
 		function Matrix(a,b,c,d,tx,ty){
@@ -1287,6 +1394,9 @@ var Laya=window.Laya=(function(window,document){
 	})()
 
 
+	/**
+	*<code>Point</code> 对象表示二维坐标系统中的某个位置，其中 x 表示水平轴，y 表示垂直轴。
+	*/
 	//class laya.maths.Point
 	var Point=(function(){
 		function Point(x,y){
@@ -1345,6 +1455,10 @@ var Laya=window.Laya=(function(window,document){
 	})()
 
 
+	/**
+	*<p><code>Rectangle</code> 对象是按其位置（由它左上角的点 (x,y)确定）以及宽度和高度定义的区域。</p>
+	*<p>Rectangle 类的 x、y、width 和 height 属性相互独立；更改一个属性的值不会影响其他属性。</p>
+	*/
 	//class laya.maths.Rectangle
 	var Rectangle=(function(){
 		function Rectangle(x,y,width,height){
@@ -1561,6 +1675,10 @@ var Laya=window.Laya=(function(window,document){
 	})()
 
 
+	/**
+	*<p> <code>Byte</code> 类提供用于优化读取、写入以及处理二进制数据的方法和属性。</p>
+	*<p><b>注意：</b> <code>Byte</code> 类适用于需要在字节层访问数据的高级开发人员。</p>
+	*/
 	//class laya.utils.Byte
 	var Byte=(function(){
 		function Byte(data){
@@ -2112,96 +2230,10 @@ var Laya=window.Laya=(function(window,document){
 	})()
 
 
-	//class laya.utils.Handler
-	var Handler=(function(){
-		function Handler(caller,method,args,once){
-			//this.caller=null;
-			//this.method=null;
-			//this.args=null;
-			this.once=false;
-			this._id=0;
-			(once===void 0)&& (once=false);
-			this.setTo(caller,method,args,once);
-		}
-
-		__class(Handler,'laya.utils.Handler');
-		var __proto=Handler.prototype;
-		/**
-		*设置此对象的指定属性值。
-		*@param caller 执行域(this)。
-		*@param method 回调方法。
-		*@param args 携带的参数。
-		*@param once 是否只执行一次，如果为true，执行后执行recover()进行回收。
-		*@return 返回 handler 本身。
-		*/
-		__proto.setTo=function(caller,method,args,once){
-			this._id=Handler._gid++;
-			this.caller=caller;
-			this.method=method;
-			this.args=args;
-			this.once=once;
-			return this;
-		}
-
-		/**
-		*执行处理器。
-		*/
-		__proto.run=function(){
-			if (this.method==null)return null;
-			var id=this._id;
-			var result=this.method.apply(this.caller,this.args);
-			this._id===id && this.once && this.recover();
-			return result;
-		}
-
-		/**
-		*执行处理器，携带额外数据。
-		*@param data 附加的回调数据，可以是单数据或者Array(作为多参)。
-		*/
-		__proto.runWith=function(data){
-			if (this.method==null)return null;
-			var id=this._id;
-			if (data==null)
-				var result=this.method.apply(this.caller,this.args);
-			else if (!this.args && !data.unshift)result=this.method.call(this.caller,data);
-			else if (this.args)result=this.method.apply(this.caller,this.args.concat(data));
-			else result=this.method.apply(this.caller,data);
-			this._id===id && this.once && this.recover();
-			return result;
-		}
-
-		/**
-		*清理对象引用。
-		*/
-		__proto.clear=function(){
-			this.caller=null;
-			this.method=null;
-			this.args=null;
-			return this;
-		}
-
-		/**
-		*清理并回收到 Handler 对象池内。
-		*/
-		__proto.recover=function(){
-			if (this._id > 0){
-				this._id=0;
-				Handler._pool.push(this.clear());
-			}
-		}
-
-		Handler.create=function(caller,method,args,once){
-			(once===void 0)&& (once=true);
-			if (Handler._pool.length)return Handler._pool.pop().setTo(caller,method,args,once);
-			return new Handler(caller,method,args,once);
-		}
-
-		Handler._pool=[];
-		Handler._gid=1;
-		return Handler;
-	})()
-
-
+	/**
+	*<p> <code>Pool</code> 是对象池类，用于对象的存贮、重复使用。</p>
+	*<p>合理使用对象池，可以有效减少对象创建的开销，避免频繁的垃圾回收，从而优化游戏流畅度。</p>
+	*/
 	//class laya.utils.Pool
 	var Pool=(function(){
 		function Pool(){};
@@ -2249,6 +2281,9 @@ var Laya=window.Laya=(function(window,document){
 	})()
 
 
+	/**
+	*<code>Utils</code> 是工具类。
+	*/
 	//class laya.utils.Utils
 	var Utils=(function(){
 		function Utils(){};
@@ -2305,6 +2340,10 @@ var Laya=window.Laya=(function(window,document){
 	})()
 
 
+	/**
+	*消息基类，提供自动序列化和反序列化消息功能
+	*消息的定义用类的定义方式替代，使用起来简单，并且有代码提示
+	*/
 	//class game.net.MessageBase
 	var MessageBase=(function(){
 		function MessageBase(){};
@@ -2502,6 +2541,9 @@ var Laya=window.Laya=(function(window,document){
 	})()
 
 
+	/**
+	*@private 消息工具类
+	*/
 	//class game.net.MessageUtils
 	var MessageUtils=(function(){
 		function MessageUtils(){};
@@ -2587,6 +2629,9 @@ var Laya=window.Laya=(function(window,document){
 	})()
 
 
+	/**
+	*初始化消息列表
+	*/
 	//class msgs.MessageInit
 	var MessageInit=(function(){
 		function MessageInit(){};
@@ -2594,7 +2639,7 @@ var Laya=window.Laya=(function(window,document){
 		MessageInit.init=function(){
 			var regMsgs;
 			regMsgs=[ClientDataMsg,EnterRoomMsg,ClientsCreateMsg,GameStartMsg,GameOverMsg,ItemDataMsg,GameCreateMsg,ClientAngleMsg,ClientLeaveMsg,
-			EatItemMsg,ClientReviveMsg,ClientLostMsg];
+			EatItemMsg,ClientReviveMsg,ClientLostMsg,PropDataMsg];
 			MessageUtils.regMessageList(regMsgs);
 			MessageUtils.setMessagesKey(regMsgs);
 		}
@@ -2603,6 +2648,11 @@ var Laya=window.Laya=(function(window,document){
 	})()
 
 
+	/**
+	*在线的游戏客户端
+	*@author CHENZHENG
+	*
+	*/
 	//class ServerPlayer extends ServerItem
 	var ServerPlayer=(function(_super){
 		function ServerPlayer(){
@@ -2665,6 +2715,11 @@ var Laya=window.Laya=(function(window,document){
 	})(ServerItem)
 
 
+	/**
+	*webSocket服务器
+	*@author CHENZHENG
+	*
+	*/
 	//class SocketServer extends laya.events.EventDispatcher
 	var SocketServer=(function(_super){
 		function SocketServer(){
@@ -2710,6 +2765,11 @@ var Laya=window.Laya=(function(window,document){
 	})(EventDispatcher)
 
 
+	/**
+	*数据管理器，集成数据存储，更新，事件派发等功能
+	*数据中心实现了均衡负载功能，防止一瞬间大量数据处理导致帧率不稳定
+	*所有的逻辑都应该以数据为中心进行驱动，数据发生变化时做相应的处理
+	*/
 	//class game.manager.DataManager extends laya.events.EventDispatcher
 	var DataManager=(function(_super){
 		function DataManager(){
@@ -2809,6 +2869,10 @@ var Laya=window.Laya=(function(window,document){
 	})(EventDispatcher)
 
 
+	/**
+	*玩家角度变化消息
+	*@author CHENZHENG
+	*/
 	//class msgs.ClientAngleMsg extends game.net.MessageBase
 	var ClientAngleMsg=(function(_super){
 		function ClientAngleMsg(){
@@ -2827,6 +2891,11 @@ var Laya=window.Laya=(function(window,document){
 	})(MessageBase)
 
 
+	/**
+	*玩家信息消息
+	*@author CHENZHENG
+	*
+	*/
 	//class msgs.ClientDataMsg extends game.net.MessageBase
 	var ClientDataMsg=(function(_super){
 		function ClientDataMsg(client){
@@ -2876,6 +2945,10 @@ var Laya=window.Laya=(function(window,document){
 	})(MessageBase)
 
 
+	/**
+	*玩家离线消息
+	*@author CHENZHENG
+	*/
 	//class msgs.ClientLeaveMsg extends game.net.MessageBase
 	var ClientLeaveMsg=(function(_super){
 		function ClientLeaveMsg(){
@@ -2896,7 +2969,7 @@ var Laya=window.Laya=(function(window,document){
 	var ClientLostMsg=(function(_super){
 		function ClientLostMsg(){
 			this.clientId=0;
-			this.itemDataArray=[];
+			this.propDataArray=[];
 			ClientLostMsg.__super.call(this);
 		}
 
@@ -2904,12 +2977,16 @@ var Laya=window.Laya=(function(window,document){
 		__static(ClientLostMsg,
 		['DES',function(){return this.DES=[
 			["clientId",4],
-			["itemDataArray",10,[11,ItemDataMsg]]];}
+			["propDataArray",10,[11,PropDataMsg]]];}
 		]);
 		return ClientLostMsg;
 	})(MessageBase)
 
 
+	/**
+	*玩家复活消息
+	*@author CHENZHENG
+	*/
 	//class msgs.ClientReviveMsg extends game.net.MessageBase
 	var ClientReviveMsg=(function(_super){
 		function ClientReviveMsg(){
@@ -2932,6 +3009,10 @@ var Laya=window.Laya=(function(window,document){
 	})(MessageBase)
 
 
+	/**
+	*客户端列表消息
+	*@author CHENZHENG
+	*/
 	//class msgs.ClientsCreateMsg extends game.net.MessageBase
 	var ClientsCreateMsg=(function(_super){
 		function ClientsCreateMsg(){
@@ -2948,6 +3029,11 @@ var Laya=window.Laya=(function(window,document){
 	})(MessageBase)
 
 
+	/**
+	*物品被吃消息
+	*@author CHENZHENG
+	*
+	*/
 	//class msgs.EatItemMsg extends game.net.MessageBase
 	var EatItemMsg=(function(_super){
 		function EatItemMsg(){
@@ -2956,6 +3042,7 @@ var Laya=window.Laya=(function(window,document){
 			this.eatId=0;
 			this.eatClientId=-1;
 			this.eatWeight=0;
+			this.eatType=0;
 			EatItemMsg.__super.call(this);
 		}
 
@@ -2966,12 +3053,18 @@ var Laya=window.Laya=(function(window,document){
 			["roleClientId",3],
 			["eatId",4],
 			["eatClientId",3],
-			["eatWeight",4]];}
+			["eatWeight",4],
+			["eatType",2]];}
 		]);
 		return EatItemMsg;
 	})(MessageBase)
 
 
+	/**
+	*玩家进入房间消息
+	*@author CHENZHENG
+	*
+	*/
 	//class msgs.EnterRoomMsg extends game.net.MessageBase
 	var EnterRoomMsg=(function(_super){
 		function EnterRoomMsg(){
@@ -2988,6 +3081,10 @@ var Laya=window.Laya=(function(window,document){
 	})(MessageBase)
 
 
+	/**
+	*创建地图物品群消息
+	*@author CHENZHENG
+	*/
 	//class msgs.GameCreateMsg extends game.net.MessageBase
 	var GameCreateMsg=(function(_super){
 		function GameCreateMsg(){
@@ -3010,6 +3107,10 @@ var Laya=window.Laya=(function(window,document){
 	})(MessageBase)
 
 
+	/**
+	*游戏结束消息
+	*@author CHENZHENG
+	*/
 	//class msgs.GameOverMsg extends game.net.MessageBase
 	var GameOverMsg=(function(_super){
 		function GameOverMsg(){
@@ -3026,6 +3127,10 @@ var Laya=window.Laya=(function(window,document){
 	})(MessageBase)
 
 
+	/**
+	*游戏开始消息
+	*@author CHENZHENG
+	*/
 	//class msgs.GameStartMsg extends game.net.MessageBase
 	var GameStartMsg=(function(_super){
 		function GameStartMsg(){
@@ -3042,6 +3147,10 @@ var Laya=window.Laya=(function(window,document){
 	})(MessageBase)
 
 
+	/**
+	*游戏物品数据消息
+	*@author CHENZHENG
+	*/
 	//class msgs.ItemDataMsg extends game.net.MessageBase
 	var ItemDataMsg=(function(_super){
 		function ItemDataMsg(item){
@@ -3064,6 +3173,7 @@ var Laya=window.Laya=(function(window,document){
 				this.speed=item.speed;
 				this.x=item.x;
 				this.y=item.y;
+				this.angle=item.angle;
 			}
 		}
 
@@ -3081,6 +3191,45 @@ var Laya=window.Laya=(function(window,document){
 			["angle",3],];}
 		]);
 		return ItemDataMsg;
+	})(MessageBase)
+
+
+	/**
+	*吐的道具数据消息
+	*/
+	//class msgs.PropDataMsg extends game.net.MessageBase
+	var PropDataMsg=(function(_super){
+		function PropDataMsg(prop){
+			this.roleId=0;
+			this.id=0;
+			this.type=0;
+			this.sourceId=0;
+			this.x=0;
+			this.y=0;
+			this.angle=0;
+			PropDataMsg.__super.call(this);
+			if(prop){
+				this.roleId=prop.roleId;
+				this.x=prop.x;
+				this.y=prop.y;
+				this.angle=prop.angle;
+				this.sourceId=prop.sourceId;
+				this.type=prop.PROP;
+			}
+		}
+
+		__class(PropDataMsg,'msgs.PropDataMsg',_super);
+		__static(PropDataMsg,
+		['DES',function(){return this.DES=[
+			["roleId",4],
+			["id",4],
+			["type",2],
+			["sourceId",2],
+			["x",4],
+			["y",4],
+			["angle",3],];}
+		]);
+		return PropDataMsg;
 	})(MessageBase)
 
 

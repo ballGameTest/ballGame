@@ -8,6 +8,7 @@ package
 	
 	import msgs.ClientAngleMsg;
 	import msgs.ClientDataMsg;
+	import msgs.ItemDataMsg;
 
 	/**
 	 * 游戏玩家，游戏玩家控制类，内含游戏角色（可控制多个角色）
@@ -81,13 +82,13 @@ package
 		 * @param id 角色唯一id
 		 * @return   返回角色类型游戏物品
 		 */		
-		public function createRole(id:int):GameItem
+		public function createRole(id:int):GameRole
 		{
-			var role:GameItem=new GameItem();
+			var role:GameRole=Pool.getItemByClass("gameRole",GameRole);
 			role.on(GameEvent.EAT_ITEM,this,weightChange);
 			role.clientId=role.id=id;
 			this.roles[id]=role;
-			role.type=2;
+			role.type=role.ROLE;
 			role.setSource(sourceId,initRadius);
 			
 			role.x=this.x;
@@ -101,6 +102,7 @@ package
 			weightChange();
 			return role;
 		}
+		
 		
 		/***创建玩家名字框***/
 		public function initNameText():Text
@@ -116,7 +118,7 @@ package
 		/**
 		 * 计算所有玩家角色的总重量
 		 */		
-		private function weightChange():void
+		public function weightChange():void
 		{
 			this.weight=0;
 			for(var id:String in roles)
@@ -190,18 +192,6 @@ package
 			
 			role.x+=role.speedX;
 			role.y+=role.speedY;
-		}
-		
-		
-		/**
-		 * 角色是否复活
-		 * @param dieId 被吃的角色id
-		 */		
-		public function getRolePos():Array
-		{
-			var posArr:Array=[];
-			
-			return posArr;
 		}
 		
 		/**

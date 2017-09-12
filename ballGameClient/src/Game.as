@@ -7,6 +7,7 @@ package
 	import laya.display.Sprite;
 	import laya.display.Text;
 	import laya.events.EventDispatcher;
+	import laya.utils.Pool;
 	
 	import msgs.ClientAngleMsg;
 	import msgs.ClientLeaveMsg;
@@ -16,7 +17,8 @@ package
 	import msgs.GameCreateMsg;
 	import msgs.GameOverMsg;
 	import msgs.GameStartMsg;
-	import msgs.ItemDataMsg;
+	import msgs.PropDataMsg;
+	import msgs.PropDataMsg;
 	
 	import view.ControlView;
 	import view.GameView;
@@ -54,10 +56,6 @@ package
 		
 		private var gameTime:int=0;
 		
-		private const STAR:int=0;
-		private const THORN:int=1;
-		private const ROLE:int=2;
-		private const PROP:int=3;
 		
 		
 		/***物品被吃消息***/
@@ -162,31 +160,45 @@ package
 		 */		
 		private function onPlayerLost():void
 		{
+			if(player.weight<200) return;
+			
 			this.clientLostMsg.clientId=player.clientId;
 			var itemArr:Array=[];
 			for(var p:String in player.roles)
 			{
-				var itemDataMsg:ItemDataMsg=new ItemDataMsg();
-				itemDataMsg.angle=player.roles[p].angle;
-				itemDataMsg.x=player.roles[p].x;
-				itemDataMsg.y=player.roles[p].y;
-				itemDataMsg.sourceId=player.sourceId;
-				itemArr.push(itemDataMsg);
+				var prop:GameProp=player.roles[p].createProp();
+				if(prop)
+				{
+					var propDataMsg:PropDataMsg=new PropDataMsg(prop);
+					itemArr.push(propDataMsg);
+				}
 			}
-			this.clientLostMsg.itemDataArray=itemArr;
-			send(this.clientLostMsg);
+			if(itemArr.length>0)
+			{
+				this.clientLostMsg.propDataArray=itemArr;
+				send(this.clientLostMsg);
+				trace("发送了丢道具消息",player.weight,clientLostMsg);
+			}
 		}
+		
 		/**
 		 * 收到玩家丢道具消息
 		 * @param msg 玩家丢道具消息
 		 */		
 		private function onClientLost(msg:ClientLostMsg):void
 		{
-			trace(msg.clientId,msg.itemDataArray);
-//			var prop:GameProp=players[msg.clientId].createProp(msg.itemDataArray);
-//			
-//			scene.starLayer.addChild(prop);
-//			scene.items[prop.id]=prop;
+			var roles:Object=players[msg.clientId].roles;
+			trace(msg.propDataArray,roles);
+			var len:int=msg.propDataArray.length;
+			for(var m:int=0;m<len;m++)
+			{
+				var prop:GameProp=Pool.getItemByClass("gameProp",GameProp);
+				prop.init(msg.propDataArray[m]);
+				
+				scene.starLayer.addChild(prop);
+				scene.items[prop.id]=prop;
+				roles[msg.propDataArray[m].roleId].addWeight(-prop.weight);
+			}
 		}
 		
 		
@@ -276,7 +288,7 @@ package
 			//遍历所有角色,与本玩家角色之间碰撞检测
 			for (var i:* in scene.roles) 
 			{
-				var role:GameItem=scene.roles[i] as GameItem;
+				var role:GameRole=scene.roles[i] as GameRole;
 				for(var m:String in player.roles)
 				{   
 					if(role.clientId==player.roles[m].clientId||!role.visible) continue;
@@ -295,6 +307,7 @@ package
 							this.eatItemMsg.eatId=role.id;
 							this.eatItemMsg.eatClientId=role.clientId;
 							this.eatItemMsg.eatWeight=role.weight;
+							this.eatItemMsg.eatType=role.type
 							send(this.eatItemMsg);
 							
 							players[role.clientId].txtName.visible=false;
@@ -366,7 +379,7 @@ package
 			}else//星星被吃
 			{
 				trace("星星"+msg.eatId+"被"+players[msg.roleClientId].nickname+"玩家角色吃了!");
-				var role:GameItem=scene.roles[msg.roleId] as GameItem;
+				var role:GameRole=scene.roles[msg.roleId] as GameRole;
 				role.addWeight(msg.eatWeight);
 				var star:GameItem=scene.items[msg.eatId] as GameItem;
 				delete scene.items[msg.eatId];

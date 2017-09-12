@@ -37,8 +37,8 @@ package view
 		
 		public function update():void
 		{
-			var xx:Number =parseInt(player.x as String);
-			var yy:Number =parseInt(player.y as String);
+			var xx:Number =parseInt(player.x/10 as String);
+			var yy:Number =parseInt(player.y/10 as String);
 			this.txt_pos.text="坐标："+xx+","+yy;
 			
 			this.gameTime-=16;

@@ -5,7 +5,7 @@ package msgs
 	public class ClientLostMsg extends MessageBase
 	{
 		public var clientId:int;
-		public var itemDataArray:Array=[];
+		public var propDataArray:Array=[];
 		
 		public function ClientLostMsg()
 		{
@@ -13,7 +13,7 @@ package msgs
 		
 		public static const DES:Array = [
 			["clientId", MessageBase.UINT16],
-			["itemDataArray", MessageBase.ARRAY,[MessageBase.CLASS,ItemDataMsg]]
+			["propDataArray", MessageBase.ARRAY,[MessageBase.CLASS,PropDataMsg]]
 		];
 	}
 }
