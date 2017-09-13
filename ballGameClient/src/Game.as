@@ -221,7 +221,7 @@ package
 			}
 			trace("发送分裂消息----",this.clientSplitMsg);
 			send(this.clientSplitMsg);
-//			this.clientSplitMsg.roles=[];
+			this.clientSplitMsg.roles=[];
 		}
 		/**
 		 * 收到玩家分裂消息
@@ -238,7 +238,7 @@ package
 				role.isFly=true;
 				scene.roles[role.id]=role;
 			}
-			trace("玩家分裂了消息",msg,role);
+			trace("玩家分裂了消息",msg,role,"/n",role.speed);
 		}	
 		
 		/**

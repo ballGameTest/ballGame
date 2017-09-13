@@ -15,8 +15,6 @@ package
 		
 		/***角度变化消息***/
 		public static var ANGLE_CHANGE:String="angle_change";
-		/***吃物品消息***/
-		public static var EAT_ITEM:String="eat_item";
 		/***玩家重量变化事件***/
 		public static var PLAYER_WEIGHT:String="player_weight";
 		/***玩家复活事件***/

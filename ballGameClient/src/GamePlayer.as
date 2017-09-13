@@ -82,7 +82,7 @@ package
 		public function createRole(itemData:*):GameRole
 		{
 			var role:GameRole=Pool.getItemByClass("gameRole",GameRole);
-			role.on(GameEvent.EAT_ITEM,this,weightChange);
+			role.on(GameEvent.PLAYER_WEIGHT,this,weightChange);
 			
 			role.visible=true;
 			role.clientId=itemData.clientId;
@@ -91,6 +91,7 @@ package
 			role.initRadius=role.radius=itemData.radius;
 			role.setSource(itemData.sourceId);
 			
+			role.speed=itemData.speed;
 			role.x=itemData.x;
 			role.y=itemData.y;
 			role.angle=itemData.angle;
@@ -113,20 +114,22 @@ package
 			var roleArr:Array=[];
 			for(var p:String in roles)
 			{
+				var initRole:GameRole=roles[p] as GameRole;
+				initRole.split();
 				var role:GameRole=Pool.getItemByClass("gameRole",GameRole);
-				role.on(GameEvent.EAT_ITEM,this,weightChange);
+				role.on(GameEvent.PLAYER_WEIGHT,this,weightChange);
 				role.visible=true;
 				role.clientId=this.clientId;
-				role.x=roles[p].x;
-				role.y=roles[p].y;
-				role.type=role.ROLE;
-				role.angle=roles[p].angle;
-				role.sourceId=this.sourceId;
+				role.x=initRole.x;
+				role.y=initRole.y;
+				role.type=initRole.type;
+				role.angle=initRole.angle;
+				role.sourceId=initRole.sourceId;
 				
-				role.weight=roles[p].weight/2;
-				roles[p].addWeight(Math.round(-roles[p].weight/2));
-				role.radius=roles[p].radius/2;
-				role.speed=roles[p].speed;
+				role.weight=initRole.weight;
+				role.radius=initRole.radius;
+				initRole.scaleNum=initRole.scaleNum;
+				role.speed=initRole.speed;
 				roleArr.push(role);
 			}
 			return roleArr;
@@ -179,8 +182,9 @@ package
 			//所有玩家角色的移动更新
 			for(var id:String in roles)
 			{
-				roleMove(roles[id]);
-				roles[id].splitFly();
+				var role:GameRole=roles[id];
+				role.move();
+				role.fly();
 			}
 			
 			this.x=mainRole.x;
@@ -208,20 +212,6 @@ package
 			}
 		}
 		
-		
-		/**
-		 * 角色移动
-		 * @param role 移动的某个角色
-		 */		
-		private function roleMove(role:GameItem):void
-		{
-			var radians:Number = Math.PI / 180 *role.angle;
-			role.speedX=Math.sin(radians)*speed;  
-			role.speedY=Math.cos(radians)*speed;
-			
-			role.x+=role.speedX;
-			role.y+=role.speedY;
-		}
 		
 		/**
 		 * 游戏玩家死亡消失，回收 

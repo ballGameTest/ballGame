@@ -256,7 +256,7 @@ package
 				{
 					itemDataMsg.type=this.STAR;
 					itemDataMsg.weight=Math.ceil(Math.random()*50+20);
-					itemDataMsg.radius=16;
+					itemDataMsg.radius=12;
 				}
 				itemDataMsg.id=itemId;
 				itemDataMsg.sourceId=Math.ceil(Math.random()*6);

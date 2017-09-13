@@ -15,7 +15,7 @@ package msgs
 		public var y:int=0;
 		public var angle:int=0;
 		
-		public function PropDataMsg(prop:GameProp=null)
+		public function PropDataMsg(prop:*=null)
 		{
 			if(prop)
 			{

@@ -14,8 +14,6 @@ package
 		public var x:int=0;
 		public var y:int=0;
 		
-		public var isFly:Boolean=false;
-		
 		public function ServerItem()
 		{
 		}

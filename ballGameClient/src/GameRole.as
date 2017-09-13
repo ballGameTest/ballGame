@@ -2,16 +2,21 @@ package
 {
 	import laya.utils.Pool;
 
+	/**
+	 * 玩家人角色
+	 */	
 	public class GameRole extends GameItem
 	{
 		public var propWeight:int=200;
 		public var initRadius:int=0;
+		public var initSpeed:int=0;
 		private var flyDistance:int=100;
 		public var isFly:Boolean=false;
 		
 		public function GameRole()
 		{
 		}
+		
 		/**
 		 * 物品死亡消失
 		 */		
@@ -53,15 +58,15 @@ package
 			return prop;
 		}
 		
-		private function splitFly():void
+		/**
+		 * 角色分裂时快速飞出
+		 */		
+		public function fly():void
 		{
 			if(!isFly) return;
-			var radians:Number = Math.PI / 180 *this.angle;
-			this.speedX=Math.sin(radians)*5;  
-			this.speedY=Math.cos(radians)*5;
 			
-			this.x+=this.speedX;
-			this.y+=this.speedY;
+			move(5);
+			
 			flyDistance-=5;
 			if(this.flyDistance<=0)
 			{
@@ -69,29 +74,88 @@ package
 			}
 		}
 		/**
+		 * 角色分裂
+		 */		
+		public function split():void
+		{
+			this.scaleNum/=3.1415926/2;
+			this.scaleX=scaleNum;
+			this.scaleY=scaleNum;
+			this.initRadius=this.radius/=3.1415926/2;
+			this.weight/=2;
+			this.size(radius*2,radius*2);
+			addSpeed(-this.weight*2);
+			trace(this.speed,111111);
+		}
+		
+		/**
+		 * 角色合并
+		 */	
+		public function merge():void
+		{
+			
+		}
+		
+		/**
+		 * 角色移动
+		 * @param role 移动的某个角色
+		 */		
+		public function move(_speed:int=0):void
+		{
+			var mySpeed:int;
+			if(_speed!=0) mySpeed=_speed;
+			else mySpeed=this.speed;
+
+			var radians:Number = Math.PI / 180 *this.angle;
+			this.speedX=Math.sin(radians)*mySpeed;  
+			this.speedY=Math.cos(radians)*mySpeed;
+			
+			this.x+=this.speedX;
+			this.y+=this.speedY;
+		}
+		
+		/**
 		 * 游戏物品增加或减少重量，扩大减小半径
 		 * @param addWeight 增加的重量
 		 */		
 		public function addWeight(addWeight:int):void
 		{
 			this.weight+=addWeight;
-			this.event(GameEvent.EAT_ITEM);
+			this.event(GameEvent.PLAYER_WEIGHT);
 			
-			if(this.weight<5000)
+			if(this.weight<1000)
 			{
-				this.scaleNum+=addWeight/3000;
-				this.speed-=addWeight/3000/10;
+				this.scaleNum+=addWeight/1000;
 				
-			}else if(this.weight>5000&&this.weight<1000000)
+			}else
 			{
-				this.scaleNum+=addWeight/10000
+				this.scaleNum+=addWeight/4000;
 			}
+			addSpeed(addWeight);
+			setScale();
+		}
+		
+		public function setScale():void
+		{
 			this.radius=initRadius*scaleNum;
 			this.size(radius*2,radius*2);
 			
 			this.scaleX=scaleNum;
 			this.scaleY=scaleNum;
-			
+		}
+		
+		public function addSpeed(addWeight:int):void
+		{
+			if(this.weight<1000)
+			{
+				this.speed-=this.speed*(addWeight/5000);
+				
+			}else 
+			{
+				this.speed-=this.speed*(addWeight/20000);
+			}
+
+			trace(this.id,"角色缩放比------",scaleNum,"速度------",this.speed);
 		}
 	}
 }

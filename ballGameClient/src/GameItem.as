@@ -90,8 +90,8 @@ package
 		 */		
 		public function kill():void
 		{
-			img.removeSelf();
-			img=null;
+			if(img)	img.removeSelf();
+
 			this.removeSelf();
 			this.offAll();
 			this.speed=this.speedX=this.speedY=0;
