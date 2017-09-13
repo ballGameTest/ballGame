@@ -13,7 +13,7 @@ package view
 	public class ControlView extends ControlUI
 	{
 		
-		private var lostDelay:int=500;
+		private var lostDelay:int=300;
 		
 		/**
 		 * 角色行为控制UI
@@ -21,7 +21,7 @@ package view
 		public function ControlView()
 		{
 			this.ctr_lostProp.on(Event.MOUSE_DOWN,this,onLostProp);
-			this.ctr_lostProp.on(Event.MOUSE_UP,this,onLostUp);
+			Laya.stage.on(Event.MOUSE_UP,this,onUp);
 			
 			this.ctr_Split.on(Event.MOUSE_DOWN,this,onSplit);
 			
@@ -30,7 +30,7 @@ package view
 		
 		private function onSplit():void
 		{
-			
+			this.event(GameEvent.PLAYER_SPLIT);
 		}
 		
 		private function onLostProp():void
@@ -46,7 +46,7 @@ package view
 //			trace("长按丢道具-----");
 			this.event(GameEvent.PLAYER_LOST);
 		}
-		private function onLostUp():void
+		private function onUp():void
 		{
 			Laya.timer.clear(this,onDelayLost);
 		}

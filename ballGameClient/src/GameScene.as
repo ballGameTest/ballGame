@@ -31,6 +31,7 @@ package
 		public var player:GamePlayer;
 		public var roles:Object={};
 		public var items:Object={};
+		public var props:Object={};
 		
 		/****当前的地图Id*****/
 		public var currentMapId:int=-1;
@@ -62,6 +63,11 @@ package
 			for(var id:String in roles)
 			{
 				this.roleBlock(roles[id]);
+			}
+			//道具边界检测
+			for(var pp:String in props)
+			{
+				this.roleBlock(props[pp]);
 			}
 		}
 		
@@ -125,14 +131,27 @@ package
 		 * 角色与地图边界检测
 		 * @param player
 		 */		
-		public function roleBlock(role:GameItem):void
+		public function roleBlock(item:GameItem):void
 		{
 			//角色X边界检查
-			if(role.x>this.width-role.width/2) role.x=this.width-role.width/2;
-			else if(role.x<role.width/2) role.x=role.width/2;
+			if(item.x>this.width-item.width/2) 
+			{
+				item.x=this.width-item.width/2;
+			}
+			else if(item.x<item.width/2)
+			{
+				item.x=item.width/2;
+			}
 			//角色Y边界检查
-			if(role.y>this.height-role.height/2) role.y=this.height-role.height/2;
-			else if(role.y<role.height/2) role.y=role.height/2;
+			if(item.y>this.height-item.height/2) 
+			{
+				item.y=this.height-item.height/2;
+			}
+			else if(item.y<item.height/2)
+			{
+				item.y=item.height/2;
+			}
+//			if(item.type==item.PROP) (item as GameProp).stopMove();
 		}
 		
 		/**

@@ -13,11 +13,12 @@ package
 	import msgs.ClientLeaveMsg;
 	import msgs.ClientLostMsg;
 	import msgs.ClientReviveMsg;
+	import msgs.ClientSplitMsg;
 	import msgs.EatItemMsg;
 	import msgs.GameCreateMsg;
 	import msgs.GameOverMsg;
 	import msgs.GameStartMsg;
-	import msgs.PropDataMsg;
+	import msgs.ItemDataMsg;
 	import msgs.PropDataMsg;
 	
 	import view.ControlView;
@@ -66,6 +67,8 @@ package
 		private var clientReviveMsg:ClientReviveMsg=new ClientReviveMsg();
 		/***玩家丢道具消息***/
 		private var clientLostMsg:ClientLostMsg=new ClientLostMsg();
+		/***玩家分裂消息***/
+		private var clientSplitMsg:ClientSplitMsg=new ClientSplitMsg();
 		
 		/**
 		 * 游戏主逻辑 
@@ -91,6 +94,7 @@ package
 			
 			this.control=new ControlView();
 			this.control.on(GameEvent.PLAYER_LOST,this,onPlayerLost);
+			this.control.on(GameEvent.PLAYER_SPLIT,this,onPlayerSplit);
 			this.addChild(control);
 			control.pos(Laya.stage.width-control.width,Laya.stage.height-control.height);
 			
@@ -127,6 +131,8 @@ package
 			DataManager.listen(ClientAngleMsg,this,onPlayerAngle);
 			//玩家吐球消息监听
 			DataManager.listen(ClientLostMsg,this,onClientLost);
+			//玩家复活消息监听
+			DataManager.listen(ClientSplitMsg,this,onClientSplit);
 			//玩家吃道具消息监听
 			DataManager.listen(EatItemMsg,this,onItemEaten);
 			
@@ -134,7 +140,6 @@ package
 			DataManager.listen(ClientReviveMsg,this,onClientRevive);
 		}
 		
-
 		/**
 		 * 玩家方向事件监听回调
 		 * @param angle 摇杆角度
@@ -161,7 +166,6 @@ package
 		private function onPlayerLost():void
 		{
 			if(player.weight<200) return;
-			
 			this.clientLostMsg.clientId=player.clientId;
 			var itemArr:Array=[];
 			for(var p:String in player.roles)
@@ -171,6 +175,7 @@ package
 				{
 					var propDataMsg:PropDataMsg=new PropDataMsg(prop);
 					itemArr.push(propDataMsg);
+					Pool.recover("gameProp",prop)
 				}
 			}
 			if(itemArr.length>0)
@@ -196,11 +201,45 @@ package
 				prop.init(msg.propDataArray[m]);
 				
 				scene.starLayer.addChild(prop);
-				scene.items[prop.id]=prop;
+				scene.props[prop.id]=prop;
 				roles[msg.propDataArray[m].roleId].addWeight(-prop.weight);
 			}
 		}
 		
+		/**
+		 * 初始化玩家分裂消息并发送
+		 */	
+		private function onPlayerSplit():void
+		{
+			this.clientSplitMsg.clientId=player.clientId;
+			var arr:Array=player.playerSplit();
+			for(var i:int=0;i<arr.length;i++)
+			{
+				var itemData:ItemDataMsg=new ItemDataMsg(arr[i]);
+				this.clientSplitMsg.roles.push(itemData);
+				Pool.recover("gameRole",arr[i]);
+			}
+			trace("发送分裂消息----",this.clientSplitMsg);
+			send(this.clientSplitMsg);
+//			this.clientSplitMsg.roles=[];
+		}
+		/**
+		 * 收到玩家分裂消息
+		 * @param msg 玩家分裂的消息
+		 */		
+		private function onClientSplit(msg:ClientSplitMsg):void
+		{
+			var len:int=msg.roles.length;
+			for(var i:int=0;i<len;i++)
+			{
+				var role:GameRole=players[msg.clientId].createRole(msg.roles[i]);
+				role.clientId=msg.clientId;
+				scene.roleLayer.addChild(role);
+				role.isFly=true;
+				scene.roles[role.id]=role;
+			}
+			trace("玩家分裂了消息",msg,role);
+		}	
 		
 		/**
 		 * 玩家离开游戏消息处理
@@ -251,7 +290,8 @@ package
 			{
 				var player1:GamePlayer=players[id];
 				//根据玩家Id创建初始角色
-				scene.roles[id]=player1.createRole(player1.clientId);
+				scene.roles[id]=player1.createRole(player1);
+				player1.mainRole=scene.roles[id];
 				trace("创建角色----",player1.roles[id]);
 				scene.roleLayer.addChild(scene.roles[id]);
 				
@@ -284,14 +324,14 @@ package
 			//UI更新
 			gameView.update();
 			
-			
-			//遍历所有角色,与本玩家角色之间碰撞检测
+			//遍历所有角色,与本玩家角色之间碰撞检测(玩家吃玩家检测)
 			for (var i:* in scene.roles) 
 			{
 				var role:GameRole=scene.roles[i] as GameRole;
+				if(role.clientId===player.clientId) continue;
 				for(var m:String in player.roles)
 				{   
-					if(role.clientId==player.roles[m].clientId||!role.visible) continue;
+					if(!role.visible) continue;
 					else if(Math.abs(role.x-player.roles[m].x-2)<=Math.abs(role.radius-player.roles[m].radius)
 							&&Math.abs(role.y-player.roles[m].y-2)<=Math.abs(role.radius-player.roles[m].radius)
 							&&Math.abs(role.weight-player.roles[m].weight)>25)
@@ -319,9 +359,9 @@ package
 				}
 			}
 			
-			//玩家角色与星星碰撞检测
+			//本玩家角色与星星碰撞检测（吃道具,吃星星）
 			var len:int=scene.starLayer.numChildren;
-			//遍历星星，碰撞检测,吃星星
+			//遍历星星，碰撞检测
 			for(var j:int=0;j<len;j++)
 			{   
 				var item:GameItem=scene.starLayer.getChildAt(j) as GameItem;
@@ -342,9 +382,9 @@ package
 						send(this.eatItemMsg);
 						
 						myRoles[n].addWeight(item.weight);
-						var star:GameItem=scene.items[item.id] as GameItem;
-						delete scene.items[item.id];
-						star.kill();
+						if(item.type==item.PROP) delete scene.props[item.id];
+						else delete scene.items[item.id];
+						item.kill();
 					}
 				}
 			}

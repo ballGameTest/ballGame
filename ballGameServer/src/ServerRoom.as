@@ -11,6 +11,7 @@ package
 	import msgs.ClientLeaveMsg;
 	import msgs.ClientLostMsg;
 	import msgs.ClientReviveMsg;
+	import msgs.ClientSplitMsg;
 	import msgs.ClientsCreateMsg;
 	import msgs.EatItemMsg;
 	import msgs.GameCreateMsg;
@@ -35,6 +36,7 @@ package
 		/**当前房间人数****/	
 		public var clientsCount:int=0;
 		public var clients:Object={};
+		public var rolesCount:int=0;
 		/**房间最大允许人数****/
 		public var roomMaxCount:int=4;
 		/**房间游戏是否开始****/
@@ -84,8 +86,9 @@ package
 			
 			//玩家复活消息监听
 			DataManager.listen(ClientReviveMsg,this,onClientRevive);
+			//玩家复活消息监听
+			DataManager.listen(ClientSplitMsg,this,onClientSplit);
 		}
-		
 		
 		/***转发玩家角度变化消息***/
 		private function onPlayerAngle(msg:ClientAngleMsg):void
@@ -99,11 +102,25 @@ package
 			var len:int=msg.propDataArray.length;
 			for(var i:int=0;i<len;i++)
 			{
-				//更新道具的id
+				//分配道具的id
 				msg.propDataArray[i].id=this.itemId++;
 			}
 			this.broadcastToRoom(msg);
 		}
+		
+		
+		/***转发玩家分裂消息***/
+		private function onClientSplit(msg:ClientSplitMsg):void
+		{
+			var len:int=msg.roles.length;
+			for(var i:int=0;i<len;i++)
+			{
+				//分配新角色的id
+				msg.roles[i].id=this.rolesCount++;
+			}
+			this.broadcastToRoom(msg);
+		}	
+		
 		
 		/***道具被吃消息处理***/
 		private function onItemEaten(msg:EatItemMsg):void
@@ -274,6 +291,7 @@ package
 			client.angle=Math.ceil(Math.random()*360);
 			
 			this.clientsCount++;
+			this.rolesCount++;
 			
 			//发送游戏房间物品表
 			client.send(gameCreateMsg);

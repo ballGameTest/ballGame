@@ -21,7 +21,6 @@ package
 		public var speed :Number=0;
 		
 		public var scaleNum:Number=1;
-		public var initRadius:int=30;
 		
 		public var speedX:Number=0;
 		public var speedY:Number=0;
@@ -59,7 +58,7 @@ package
 			
 			this.x=itemMsg.x;
 			this.y=itemMsg.y;
-			this.setSource(sourceId,radius);
+			this.setSource(sourceId);
 			this.visible=true;
 			itemMsg=null;
 		}
@@ -69,9 +68,8 @@ package
 		 * @param sourceId 物品美术资源Id
 		 * @param radius   物品半径
 		 */		
-		public function setSource(sourceId:int,radius:int):void
+		public function setSource(sourceId:int):void
 		{	
-			this.initRadius=this.radius=radius;
 			this.sourceId=sourceId;
 			img=new Image()
 				

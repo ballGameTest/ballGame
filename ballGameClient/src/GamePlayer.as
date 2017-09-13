@@ -16,11 +16,6 @@ package
 	 */	
 	public class GamePlayer extends EventDispatcher
 	{
-		
-		public var account:String="";
-		public var password:int=0;
-		
-		
 		/**所属房间Id****/
 		public var roomId:int=0;
 		/**是否在房间****/
@@ -36,13 +31,14 @@ package
 		
 		public var txtName:Text;
 		
+		public var id:int=0;
 		public var x:Number=0;
 		public var y:Number=0;
 		public var speed:int=0;
 		public var angle:int=0;
 		public var sourceId:int=0;
-		public var initRadius:int=30;
-		
+
+		public var radius:int=25;
 		public var weight:int=0;
 		public var roles:Object={};
 		public var rolesCount:int=0;
@@ -59,50 +55,82 @@ package
 		
 		/**
 		 * 初始化玩家数据
-		 * @param data 玩家数据消息
+		 * @param playerData 玩家数据消息
 		 */		
-		public function initPlayerData(data:ClientDataMsg):void
+		public function initPlayerData(playerData:ClientDataMsg):void
 		{
-			roomId=data.roomId;
-			isInRoom=data.isInRoom;
-			clientId=data.clientId;
-			isOriginator=data.isOriginator;
-			nickname=data.nickname;
-			headId=data.headId;
+			roomId=playerData.roomId;
+			isInRoom=playerData.isInRoom;
+			clientId=playerData.clientId;
+			isOriginator=playerData.isOriginator;
+			nickname=playerData.nickname;
+			headId=playerData.headId;
 			
-			sourceId=data.sourceId;
-			this.x=data.x;
-			this.y=data.y;
-			this.speed=data.speed;
-			this.angle=data.angle;
+			sourceId=playerData.sourceId;
+			this.x=playerData.x;
+			this.y=playerData.y;
+			this.speed=playerData.speed;
+			this.angle=playerData.angle;
 		}
 		
 		/**
 		 * 创建操控的角色
+		 * @param clientId 角色玩家id
 		 * @param id 角色唯一id
-		 * @return   返回角色类型游戏物品
+		 * @return   返回角色
 		 */		
-		public function createRole(id:int):GameRole
+		public function createRole(itemData:*):GameRole
 		{
 			var role:GameRole=Pool.getItemByClass("gameRole",GameRole);
 			role.on(GameEvent.EAT_ITEM,this,weightChange);
-			role.clientId=role.id=id;
-			this.roles[id]=role;
-			role.type=role.ROLE;
-			role.setSource(sourceId,initRadius);
 			
-			role.x=this.x;
-			role.y=this.y;
-			role.angle=this.angle;
+			role.visible=true;
+			role.clientId=itemData.clientId;
+			role.id=itemData.id;
+			role.type=role.ROLE;
+			role.initRadius=role.radius=itemData.radius;
+			role.setSource(itemData.sourceId);
+			
+			role.x=itemData.x;
+			role.y=itemData.y;
+			role.angle=itemData.angle;
 			
 			rolesCount++;
+			roles[role.id]=role;
 			//如果是第一个角色,设置为主角色
-			if(id==this.clientId) mainRole=role;
+//			if(id==this.clientId) mainRole=role;
 			
 			weightChange();
 			return role;
 		}
 		
+		/**
+		 * 现有角色分裂 
+		 * @return 返回分裂出的球的数组
+		 */		
+		public function playerSplit():Array
+		{
+			var roleArr:Array=[];
+			for(var p:String in roles)
+			{
+				var role:GameRole=Pool.getItemByClass("gameRole",GameRole);
+				role.on(GameEvent.EAT_ITEM,this,weightChange);
+				role.visible=true;
+				role.clientId=this.clientId;
+				role.x=roles[p].x;
+				role.y=roles[p].y;
+				role.type=role.ROLE;
+				role.angle=roles[p].angle;
+				role.sourceId=this.sourceId;
+				
+				role.weight=roles[p].weight/2;
+				roles[p].addWeight(Math.round(-roles[p].weight/2));
+				role.radius=roles[p].radius/2;
+				role.speed=roles[p].speed;
+				roleArr.push(role);
+			}
+			return roleArr;
+		}
 		
 		/***创建玩家名字框***/
 		public function initNameText():Text
@@ -152,6 +180,7 @@ package
 			for(var id:String in roles)
 			{
 				roleMove(roles[id]);
+				roles[id].splitFly();
 			}
 			
 			this.x=mainRole.x;

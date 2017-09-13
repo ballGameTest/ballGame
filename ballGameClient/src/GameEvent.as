@@ -23,6 +23,8 @@ package
 		public static var PLAYER_REVIVE:String="player_revive";
 		/***玩家丢道具事件***/
 		public static var PLAYER_LOST:String="player_lost";
+		/***玩家分裂事件***/
+		public static var PLAYER_SPLIT:String="player_split";
 
 		
 		public function GameEvent()

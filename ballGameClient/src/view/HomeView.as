@@ -48,13 +48,13 @@ package view
 		}
 		
 		/**
-		 * 连接服务器后收到的欢迎消息处理
-		 * @param msg 服务器发送的欢迎消息
+		 * 连接服务器后收到的玩家消息处理
+		 * @param msg 服务器发送的玩家消息
 		 */		
 		private function onServerConnect(msg:ClientDataMsg):void
 		{
 			player.initPlayerData(msg);
-			player.clientId=msg.clientId;
+			player.id=player.clientId=msg.clientId;
 			this.txt_nickname1.text=player.nickname=msg.nickname;
 			this.txt_nickname2.text="昵称："+player.nickname;
 			this.icon_head.index=player.headId=msg.headId;

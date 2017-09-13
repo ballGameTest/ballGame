@@ -6,9 +6,8 @@ package
 
 	public class GameProp extends GameItem
 	{
-		public var flyDistance:int=300;
+		public var flyDistance:int=200;
 		private var isFly:Boolean=false;
-		public var radius:int=10;
 		
 		public var roleId:int=0;
 		
@@ -16,8 +15,9 @@ package
 		{
 		}
 		
-		public function init(msg:ItemDataMsg):void
+		override public function init(msg:ItemDataMsg):void
 		{
+			this.visible=true;
 			this.id=msg.id;
 			this.x=msg.x;
 			this.y=msg.y;
@@ -25,29 +25,36 @@ package
 			this.angle=msg.angle;
 			
 			this.type=this.PROP;
-			this.speed=6;
-			this.flyDistance=100;
-			this.initRadius=this.radius=10;
+			this.speed=8;
+			this.radius=12;
 			this.weight=50;
 			
-			this.setSource(this.sourceId,this.radius)
+			this.setSource(this.sourceId)
 				
 				
 			var radians:Number = Math.PI / 180 *this.angle;
 			this.speedX=Math.sin(radians)*speed;  
 			this.speedY=Math.cos(radians)*speed;
-			Laya.timer.loop(16,this,onLoop);
+			Laya.timer.loop(16,this,fly);
 		}
 		
-		private function onLoop():void
+		private function fly():void
 		{
 			this.x+=this.speedX;
 			this.y+=this.speedY;
 			flyDistance-=this.speed;
 			if(this.flyDistance<=0)
 			{
-				Laya.timer.clearAll(this);
+				stopMove();
 			}
+		}
+		
+		/**
+		 * 停止移动
+		 */	
+		public function stopMove():void
+		{
+			Laya.timer.clearAll(this);
 		}
 		
 		/**
@@ -56,8 +63,8 @@ package
 		override public function kill():void
 		{
 			img.removeSelf();
-			img=null;
 			this.removeSelf();
+			flyDistance=200;
 			this.offAll();
 			this.speed=this.speedX=this.speedY=0;
 			Pool.recover("gameProp",this);

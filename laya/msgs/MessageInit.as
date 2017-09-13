@@ -14,7 +14,7 @@ package msgs {
 		{
 			var regMsgs:Array;
 			regMsgs = [ClientDataMsg,EnterRoomMsg,ClientsCreateMsg,GameStartMsg,GameOverMsg,ItemDataMsg,GameCreateMsg,ClientAngleMsg,ClientLeaveMsg,
-					   EatItemMsg,ClientReviveMsg,ClientLostMsg,PropDataMsg];
+					   EatItemMsg,ClientReviveMsg,ClientLostMsg,PropDataMsg,ClientSplitMsg];
 
 			MessageUtils.regMessageList(regMsgs);
 			MessageUtils.setMessagesKey(regMsgs);
